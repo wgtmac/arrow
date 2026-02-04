@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <bit>
 #include <cstring>
 #include <memory>
 #include <type_traits>
@@ -69,13 +70,11 @@ inline typename std::enable_if<std::is_trivial<T>::value, T>::type SafeLoad(
 }
 
 template <typename U, typename T>
-inline typename std::enable_if<std::is_trivial<T>::value && std::is_trivial<U>::value &&
-                                   sizeof(T) == sizeof(U),
-                               U>::type
+constexpr inline typename std::enable_if<
+    std::is_trivial<T>::value && std::is_trivial<U>::value && sizeof(T) == sizeof(U),
+    U>::type
 SafeCopy(T value) {
-  typename std::remove_const<U>::type ret;
-  std::memcpy(&ret, &value, sizeof(T));
-  return ret;
+  return std::bit_cast<U>(value);
 }
 
 template <typename T>
