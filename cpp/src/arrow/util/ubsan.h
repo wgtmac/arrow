@@ -19,21 +19,12 @@
 
 #pragma once
 
+#include <bit>
 #include <cstring>
 #include <memory>
 #include <type_traits>
 
-#if defined(__cplusplus) && __cplusplus >= 202002L
-#include <bit>
-#endif
-
 #include "arrow/util/macros.h"
-
-#if defined(__cpp_lib_bit_cast)
-#define ARROW_CONSTEXPR_BIT_CAST constexpr
-#else
-#define ARROW_CONSTEXPR_BIT_CAST
-#endif
 
 namespace arrow {
 namespace util {
@@ -79,17 +70,11 @@ inline typename std::enable_if<std::is_trivial<T>::value, T>::type SafeLoad(
 }
 
 template <typename U, typename T>
-ARROW_CONSTEXPR_BIT_CAST inline typename std::enable_if<
+constexpr inline typename std::enable_if<
     std::is_trivial<T>::value && std::is_trivial<U>::value && sizeof(T) == sizeof(U),
     U>::type
 SafeCopy(T value) {
-#if defined(__cpp_lib_bit_cast)
   return std::bit_cast<U>(value);
-#else
-  typename std::remove_const<U>::type ret;
-  std::memcpy(&ret, &value, sizeof(T));
-  return ret;
-#endif
 }
 
 template <typename T>
